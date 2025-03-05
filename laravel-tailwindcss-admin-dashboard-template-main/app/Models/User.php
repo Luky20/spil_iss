@@ -2,65 +2,105 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Fortify\TwoFactorAuthenticatable;
-use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, HasProfilePhoto, Notifiable, TwoFactorAuthenticatable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
-     * The attributes that are mass assignable.
+     * Tabel yang digunakan oleh model ini.
+     *
+     * @var string
+     */
+    protected $table = 'users';
+
+    /**
+     * Primary Key tabel ini.
+     *
+     * @var string
+     */
+    protected $primaryKey = 'id';
+
+    /**
+     * Apakah primary key bertipe auto-increment?
+     *
+     * @var bool
+     */
+    public $incrementing = true;
+
+    /**
+     * Tipe data primary key.
+     *
+     * @var string
+     */
+    /**
+     * Apakah timestamps aktif?
+     *
+     * @var bool
+     */
+    public $timestamps = true;
+
+    /**
+     * Atribut yang dapat diisi (mass assignable).
      *
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'nik',
         'email',
         'password',
-        'division_id',  // Pastikan ini ada agar bisa diisi lewat model
+        'full_name',
+        'department',
+        'location',
+        'division',
+        'position',
+        'session',
+        'created_at',
+        'updated_at',
+        'otp_code',
+        'otp_expiration',
+        'last_activity',
+        'session_exp',
+        'departments_iddepartments',
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
+     * Atribut yang harus disembunyikan dalam array atau JSON.
      *
      * @var array<int, string>
      */
     protected $hidden = [
         'password',
         'remember_token',
-        'two_factor_recovery_codes',
         'two_factor_secret',
+        'two_factor_recovery_codes',
     ];
 
     /**
-     * The attributes that should be cast.
+     * Atribut yang harus dikonversi secara otomatis.
      *
      * @var array<string, string>
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'otp_expiration' => 'datetime',
+        'last_activity' => 'datetime',
+        'session_exp' => 'datetime',
     ];
 
     /**
-     * The accessors to append to the model's array form.
+     * Relasi ke tabel **departments**.
      *
-     * @var array<int, string>
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    protected $appends = [
-        'profile_photo_url',
-    ];
-
-    /**
-     * Relasi ke tabel divisions.
-     * User memiliki satu division.
-     */
-    public function division()
+    public function department()
     {
-        return $this->belongsTo(Division::class, 'division_id', 'iddivisions');
+        return $this->belongsTo(Department::class, 'departments_iddepartments', 'iddepartments');
     }
 }

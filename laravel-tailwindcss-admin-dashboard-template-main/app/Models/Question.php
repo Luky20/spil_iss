@@ -9,21 +9,26 @@ class Question extends Model
 {
     use HasFactory;
 
-    protected $table = 'questions'; // Nama tabel sesuai database
-    protected $primaryKey = 'idquestions'; // Primary key tabel
-    public $timestamps = false; // Nonaktifkan timestamps jika tidak digunakan
+    protected $table = 'questions';
 
-    protected $fillable = ['question', 'divisions_iddivisions', 'departments_iddepartments']; // Kolom yang bisa diisi
+    protected $primaryKey = 'idquestions';
 
-    // Relasi ke Division
-    public function division()
+    protected $fillable = [
+        'questions', 'idepartments_dari', 'idepartments_ke', 'jenis_survey'
+    ];
+
+    public function departmentDari()
     {
-        return $this->belongsTo(Division::class, 'divisions_iddivisions', 'iddivisions');
+        return $this->belongsTo(Department::class, 'idepartments_dari');
     }
 
-    // Relasi ke Department
-    public function department()
+    public function departmentKe()
     {
-        return $this->belongsTo(Department::class, 'departments_iddepartments', 'iddepartments');
+        return $this->belongsTo(Department::class, 'idepartments_ke');
+    }
+
+    public function detailSurveys()
+    {
+        return $this->hasMany(DetailSurvey::class, 'questions_idquestions', 'idquestions');
     }
 }
