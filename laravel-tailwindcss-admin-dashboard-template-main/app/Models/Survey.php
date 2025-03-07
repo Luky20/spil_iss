@@ -35,7 +35,7 @@ class Survey extends Model
      *
      * @var string
      */
-    protected $keyType = 'bigint';
+    protected $keyType = 'int';
 
     /**
      * Apakah timestamps aktif?

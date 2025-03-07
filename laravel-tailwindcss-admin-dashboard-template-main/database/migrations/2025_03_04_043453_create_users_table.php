@@ -10,7 +10,7 @@ return new class extends Migration {
         Schema::create('users', function (Blueprint $table) {
             $table->id('idusers'); // PRIMARY KEY + AUTO_INCREMENT
             $table->string('nik', 45)->unique();
-            $table->string('email', 45)->unique();
+            $table->string('email', 45);
             $table->string('password', 255);
             $table->string('full_name', 45);
             $table->string('department', 45)->nullable();

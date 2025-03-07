@@ -9,7 +9,7 @@ class Answer extends Model
 {
     use HasFactory;
 
-    protected $table = 'answer'; // Nama tabel di database
+    protected $table = 'answers'; // Nama tabel di database
 
     protected $primaryKey = 'idanswer'; // Primary key tabel
 

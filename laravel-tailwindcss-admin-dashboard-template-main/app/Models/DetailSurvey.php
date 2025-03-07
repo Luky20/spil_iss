@@ -7,14 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class DetailSurvey extends Model
 {
-    use HasFactory;
+    use HasFactory; 
 
     protected $table = 'detail_surveys';
 
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'surveys_idsurveys', 'questions_idquestions', 'answers_idanswers'
+        'users_idusers', 'surveys_idsurveys', 'questions_idquestions', 'answers_idanswers', 
     ];
 
     public function survey()
