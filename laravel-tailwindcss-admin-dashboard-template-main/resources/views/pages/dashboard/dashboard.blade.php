@@ -1,53 +1,81 @@
 <x-app-layout>
     <div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto">
 
-        <!-- Dashboard actions -->
-        <div class="sm:flex sm:justify-between sm:items-center mb-8">
-
-            <!-- Left: Title -->
-            <div class="mb-4 sm:mb-0">
-                <h1 class="text-2xl md:text-3xl text-gray-800 font-bold">Dashboard</h1>
-            </div>
-
-            <!-- Right: Actions -->
-            <div class="grid grid-flow-col sm:auto-cols-max justify-start sm:justify-end gap-2">
-
-                <!-- Filter button -->
-                <x-dropdown-filter align="right" />
-
-                <!-- Datepicker built with flatpickr -->
-                <x-datepicker />
-
-                <!-- Add view button -->
-                <button class="btn bg-gray-900 text-gray-100 hover:bg-gray-800">
-                    <svg class="fill-current shrink-0 xs:hidden" width="16" height="16" viewBox="0 0 16 16">
-                        <path d="M15 7H9V1c0-.6-.4-1-1-1S7 .4 7 1v6H1c-.6 0-1 .4-1 1s.4 1 1 1h6v6c0 .6.4 1 1 1s1-.4 1-1V9h6c.6 0 1-.4 1-1s-.4-1-1-1z" />
-                  </svg>
-                  <span class="max-xs:sr-only">Add View</span>
-                </button>
-                
-            </div>
-
+        <!-- Dashboard Header -->
+        <div class="flex items-center justify-between mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">📊 Survey Dashboard</h1>
         </div>
-        
-        <!-- Cards -->
+
+        <!-- Tabel Progress Per Divisi -->
+        <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Survey Completion Status</h2>
+            <table class="w-full border-collapse border border-gray-300 shadow-md rounded-lg">
+                <thead>
+                    <tr class="bg-gradient-to-r from-blue-500 to-blue-700 text-white text-lg">
+                        <th class="border border-gray-300 px-4 py-3">Division</th>
+                        <th class="border border-gray-300 px-4 py-3">Total Employees</th>
+                        <th class="border border-gray-300 px-4 py-3">Completed</th>
+                        <th class="border border-gray-300 px-4 py-3">Percentage</th>
+                        <th class="border border-gray-300 px-4 py-3">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-gray-100 text-center">
+                    @foreach ($surveyCompletion as $divisionData)
+                        <tr class="border border-gray-300 hover:bg-gray-200 transition">
+                            <td class="px-4 py-3 font-medium text-gray-700">{{ $divisionData['division'] }}</td>
+                            <td class="px-4 py-3">{{ $divisionData['total_employees'] }}</td>
+                            <td class="px-4 py-3">{{ $divisionData['completed_surveys'] }}</td>
+                            <td class="px-4 py-3 text-lg font-semibold text-blue-600">{{ number_format($divisionData['percentage'], 2) }}%</td>
+                            <td class="px-4 py-3">
+                                <span class="px-2 py-1 rounded-lg text-white 
+                                    {{ $divisionData['percentage'] >= 80 ? 'bg-green-500' : 'bg-red-500' }}">
+                                    {{ $divisionData['status'] }}
+                                </span>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pie Charts Progress Per Divisi -->
         <div class="grid grid-cols-12 gap-6">
-
-            <!-- Line chart (Acme Plus) -->
-            <x-dashboard.dashboard-card-01 :dataFeed="$dataFeed" />
-
-            <!-- Line chart (Acme Advanced) -->
-            <x-dashboard.dashboard-card-02 :dataFeed="$dataFeed" />
-
-            <!-- Line chart (Acme Professional) -->
-            <x-dashboard.dashboard-card-03 :dataFeed="$dataFeed" />
-
-            <x-dashboard.dashboard-card-04 :dataFeed="$dataFeed" />
-
-            <!-- Line chart (Acme Professional) -->
-            <x-dashboard.dashboard-card-05 :dataFeed="$dataFeed" />
-
+            @foreach ($surveyCompletion as $index => $divisionData)
+                <div class="flex flex-col col-span-6 sm:col-span-4 xl:col-span-3 bg-white shadow-lg rounded-lg p-4 border border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-800 text-center">{{ $divisionData['division'] }}</h3>
+                    <canvas id="chart-{{ $index }}" class="w-24 h-24 mx-auto"></canvas>
+                    <p class="text-center text-gray-600 mt-2 text-sm font-bold">
+                        {{ number_format($divisionData['percentage'], 2) }}% Completed
+                    </p>
+                </div>
+            @endforeach
         </div>
 
     </div>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            @foreach ($surveyCompletion as $index => $divisionData)
+                let ctx{{ $index }} = document.getElementById("chart-{{ $index }}").getContext("2d");
+                new Chart(ctx{{ $index }}, {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: [{{ $divisionData['percentage'] }}, {{ 100 - $divisionData['percentage'] }}],
+                            backgroundColor: ['#4CAF50', '#E0E0E0'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        cutout: '70%',
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+            @endforeach
+        });
+    </script>
 </x-app-layout>
