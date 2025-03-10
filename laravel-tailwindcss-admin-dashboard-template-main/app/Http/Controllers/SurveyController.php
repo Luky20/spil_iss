@@ -25,7 +25,7 @@ class SurveyController extends Controller
         $existingSurvey = Survey::where('users_idusers', $user->id)
             ->where('tanggal', '>=', now()->subMonths(3)) // Cek 3 bulan terakhir
             ->exists(); // Mengecek apakah ada data
-
+        
         if ($existingSurvey) {
             return redirect()->route('survey.completed');
         }
