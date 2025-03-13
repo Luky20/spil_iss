@@ -8,8 +8,8 @@
             @csrf
 
             <div class="mb-4">
-                <label for="email" class="block text-gray-700 font-medium">Email:</label>
-                <input id="email" class="block w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm" type="email" name="email" required autofocus autocomplete="username" />
+                <label for="nik" class="block text-gray-700 font-medium">NIK:</label>
+                <input id="nik" class="block w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm" type="text" name="nik" required autofocus autocomplete="username" />
             </div>
 
             <div class="mb-4">

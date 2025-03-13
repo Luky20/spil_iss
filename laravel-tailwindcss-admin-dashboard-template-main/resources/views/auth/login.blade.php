@@ -11,9 +11,9 @@
 
         <!-- Email Address -->
         <div class="mb-4">
-            <label for="email" class="block text-gray-700 font-medium">Email:</label>
-            <input id="email" class="block w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-green-500 focus:border-green-500" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+            <label for="nik" class="block text-gray-700 font-medium">NIK:</label>
+            <input id="nik" class="block w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-green-500 focus:border-green-500" type="text" name="nik" :value="old('email')" required autofocus autocomplete="username" />
+            <x-input-error :messages="$errors->get('nik')" class="mt-2" />
         </div>
 
         <!-- Password -->
@@ -39,4 +39,16 @@
             </button>
         </div>
     </form>
+
+    <!-- Register Link -->
+    <div class="mt-4 text-center">
+        @if (Route::has('register'))
+            <p class="text-sm text-gray-600">
+                Don't have an account?
+                <a href="{{ route('register') }}" class="text-green-600 hover:text-green-800 font-semibold">
+                    Register here
+                </a>
+            </p>
+        @endif
+    </div>
 @endsection

@@ -27,7 +27,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'nik' => ['required', 'string'], // Menggunakan NIK, bukan email
             'password' => ['required', 'string'],
         ];
     }
@@ -41,15 +41,15 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        // Ambil user berdasarkan email
-        $user = \App\Models\User::where('email', $this->email)->first();
+        // Ambil user berdasarkan NIK
+        $user = \App\Models\User::where('nik', $this->nik)->first();
 
         // Jika user tidak ditemukan atau password tidak cocok
         if (! $user || ! Hash::check($this->password, $user->password)) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'nik' => trans('auth.failed'), // Ubah dari 'email' ke 'nik'
             ]);
         }
 
@@ -75,7 +75,7 @@ class LoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'email' => trans('auth.throttle', [
+            'nik' => trans('auth.throttle', [
                 'seconds' => $seconds,
                 'minutes' => ceil($seconds / 60),
             ]),
@@ -87,6 +87,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('nik')).'|'.$this->ip()); // Menggunakan NIK, bukan email
     }
 }
