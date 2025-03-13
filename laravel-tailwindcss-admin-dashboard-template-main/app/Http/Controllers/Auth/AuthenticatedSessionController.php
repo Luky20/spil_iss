@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use App\Models\DataFeed;
+use App\Models\Department;
+use App\Models\Question;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -33,9 +35,8 @@ class AuthenticatedSessionController extends Controller
         if ($user->role === 'Admin') {
             return redirect()->route('dashboard');
         }
-        return redirect()->route('survey');
+        return redirect()->route('survey.select');
     }
-
     /**
      * Destroy an authenticated session.
      */

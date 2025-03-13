@@ -12,9 +12,56 @@ use App\Models\DetailSurvey;
 
 class SurveyController extends Controller
 {
-    /**
-     * Display the survey form.
-     */
+    public function selectDepartments()
+    {
+        $user = Auth::user();
+
+        // Ambil semua departemen yang harus diisi oleh user
+        $departments = Question::where('idepartments_dari', $user->departments_iddepartments)
+            ->join('departments', 'questions.idepartments_ke', '=', 'departments.iddepartments')
+            ->select('departments.iddepartments', 'departments.nama')
+            ->distinct()
+            ->get();
+
+        // Jika departemen yang harus diisi <= 10, langsung gunakan semua tanpa menampilkan form pemilihan
+        if ($departments->count() <= 10) {
+            session(['selected_departments' => $departments->pluck('iddepartments')->toArray()]);
+            return redirect()->route('survey'); // Langsung ke survei
+        }
+
+        // Jika lebih dari 10, tampilkan form pemilihan
+        return view('users.select_departments', compact('departments'));
+    }
+
+
+    public function storeSelectedDepartments(Request $request)
+    {
+        $user = Auth::user();
+
+        // Ambil semua departemen yang harus diisi oleh user
+        $departments = Question::where('idepartments_dari', $user->departments_iddepartments)
+            ->join('departments', 'questions.idepartments_ke', '=', 'departments.iddepartments')
+            ->select('departments.iddepartments', 'departments.nama')
+            ->distinct()
+            ->get();
+
+        // Jika total departemen ≤ 10, langsung atur session tanpa perlu validasi
+        if ($departments->count() <= 10) {
+            session(['selected_departments' => $departments->pluck('iddepartments')->toArray()]);
+            return redirect()->route('survey'); 
+        }
+
+        // Validasi hanya berlaku jika user memilih secara manual
+        $request->validate([
+            'selected_departments' => 'required|array|min:1|max:10',
+        ]);
+
+        // Simpan departemen yang dipilih ke dalam session
+        session(['selected_departments' => $request->selected_departments]);
+
+        return redirect()->route('survey');
+    }
+
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -22,57 +69,71 @@ class SurveyController extends Controller
             return redirect()->route('login')->withErrors(['error' => 'Silakan login terlebih dahulu.']);
         }
 
-        $existingSurvey = Survey::where('users_idusers', $user->id)
-            ->where('tanggal', '>=', now()->subMonths(3)) // Cek 3 bulan terakhir
-            ->exists(); // Mengecek apakah ada data
         
+        $existingSurvey = Survey::where('users_idusers', $user->id)
+            ->where('tanggal', '>=', now()->subMonths(3))
+            ->exists();
+
         if ($existingSurvey) {
             return redirect()->route('survey.completed');
         }
-        // Ambil ID department user
-        $userDepartmentId = $user->departments_iddepartments;
 
-        // Ambil total department tujuan berdasarkan `questions`
-        $totalDepartments = Question::where('idepartments_dari', $userDepartmentId)
-            ->distinct('idepartments_ke')
-            ->count();
+        // Ambil daftar departemen yang dipilih user dari session
+        $selectedDepartments = session('selected_departments', []);
 
-        
-        // Ambil session yang menyimpan department yang sudah dijawab
+        if (empty($selectedDepartments)) {
+            $departments = Question::where('idepartments_dari', $user->departments_iddepartments)
+                ->pluck('idepartments_ke')
+                ->unique()
+                ->toArray();
+    
+            session(['selected_departments' => $departments]);
+            $selectedDepartments = $departments;
+        }
+
+        // Ambil session visited_departments
         $visitedDepartments = session('visited_departments', []);
 
-        // **Perbaikan penting**: Jika session kosong, reset ke array baru
         if (!is_array($visitedDepartments)) {
             $visitedDepartments = [];
         }
 
         $completedDepartments = count($visitedDepartments);
+        
+        $totalDepartments = count($selectedDepartments);
 
-        // **Ambil department berikutnya yang belum dijawab**
-        $currentDepartment = Question::where('idepartments_dari', $userDepartmentId)
-            ->whereNotIn('idepartments_ke', $visitedDepartments) // Cek departemen yang belum dijawab
+        // Ambil department berikutnya yang belum dijawab
+        $currentDepartment = Question::where('idepartments_dari', $user->departments_iddepartments)
+            ->whereIn('idepartments_ke', $selectedDepartments) // Pastikan hanya departemen yang dipilih
+            ->whereNotIn('idepartments_ke', $visitedDepartments)
             ->join('departments', 'questions.idepartments_ke', '=', 'departments.iddepartments')
             ->select('questions.idepartments_ke', 'departments.nama as department_name')
             ->orderBy('questions.idepartments_ke')
             ->first();
 
-        // Jika tidak ada department lagi, redirect ke halaman selesai
         if (!$currentDepartment) {
             return redirect()->route('survey.completed');
         }
 
         $answers = Answer::all();
+        $isLastPage = ($completedDepartments) >= $totalDepartments;
 
-        $isLastPage = ($completedDepartments + 1) >=   $totalDepartments;
 
-        // Ambil pertanyaan hanya untuk `idepartments_ke` yang aktif
-        $questions = Question::where('idepartments_dari', $userDepartmentId)
+        $questions = Question::where('idepartments_dari', $user->departments_iddepartments)
             ->where('idepartments_ke', $currentDepartment->idepartments_ke)
             ->get();
 
-        return view('users.index', compact('currentDepartment', 'questions', 'totalDepartments', 'visitedDepartments', 
-        'answers', 'completedDepartments', 'isLastPage'));
+        return view('users.index', compact(
+            'currentDepartment',
+            'questions',
+            'totalDepartments',
+            'visitedDepartments',
+            'answers',
+            'completedDepartments',
+            'isLastPage'
+        ));
     }
+
 
 
     /**

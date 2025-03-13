@@ -35,6 +35,12 @@
         Route::get('/survey/completed', function () {
             return view('users.completed');
         })->name('survey.completed');
+        Route::get('/survey/select-departments', [SurveyController::class, 'selectDepartments'])->name('survey.select_departments');
+        Route::get('/survey/branch', [BranchSurveyController::class, 'index'])->name('survey.branch');
+        Route::post('/survey/store-selected-departments', [SurveyController::class, 'storeSelectedDepartments'])->name('survey.store_selected_departments');
+        Route::get('/survey/select', function () {
+            return view('users.select_survey'); 
+        })->name('survey.select');
     });
     Route::middleware('auth')->group(function () {
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
