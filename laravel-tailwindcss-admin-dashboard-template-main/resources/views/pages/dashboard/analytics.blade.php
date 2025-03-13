@@ -6,15 +6,15 @@
         <div class="flex gap-4 mb-4">
             <div class="flex items-center space-x-2">
                 <span class="w-4 h-4 bg-red-500 rounded-full"></span>
-                <span>Don't Pass (<3.25)</span>
+                <span>Don't Pass (<4.25)</span>
             </div>
             <div class="flex items-center space-x-2">
                 <span class="w-4 h-4 bg-yellow-400 rounded-full"></span>
-                <span>Threshold (3.25 - 3.49)</span>
+                <span>Threshold (4.25 - 3.49)</span>
             </div>
             <div class="flex items-center space-x-2">
                 <span class="w-4 h-4 bg-green-500 rounded-full"></span>
-                <span>Pass (3.5 - 4)</span>
+                <span>Pass (4.5 - 5)</span>
             </div>
         </div>
 
@@ -48,9 +48,9 @@
                                     $score = $department['categories'][$category] ?? '-';
                                     $bgColor = '';
                                     if (is_numeric($score)) {
-                                        if ($score >= 3.5) {
+                                        if ($score >= 4.5) {
                                             $bgColor = 'bg-green-500 text-white';
-                                        } elseif ($score >= 3.25) {
+                                        } elseif ($score >= 4.25) {
                                             $bgColor = 'bg-yellow-400 text-black';
                                         } else {
                                             $bgColor = 'bg-red-500 text-white';

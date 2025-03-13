@@ -69,7 +69,6 @@ class SurveyController extends Controller
             return redirect()->route('login')->withErrors(['error' => 'Silakan login terlebih dahulu.']);
         }
 
-        
         $existingSurvey = Survey::where('users_idusers', $user->id)
             ->where('tanggal', '>=', now()->subMonths(3))
             ->exists();
@@ -116,8 +115,7 @@ class SurveyController extends Controller
         }
 
         $answers = Answer::all();
-        $isLastPage = ($completedDepartments) >= $totalDepartments;
-
+        $isLastPage = ($completedDepartments + 1) === $totalDepartments;
 
         $questions = Question::where('idepartments_dari', $user->departments_iddepartments)
             ->where('idepartments_ke', $currentDepartment->idepartments_ke)
